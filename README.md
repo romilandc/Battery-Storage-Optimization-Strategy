@@ -6,7 +6,7 @@ Construct and backtest a simple operational trading strategy to maximize revenue
 
 **Dataset:**
 
-The provided `model_ready.parquet` file contains a time series dataset with energy-related feature columns, a `row_type` column for train/hold-out separation, and three target columns representing electricity prices at different grid nodes.
+The provided `model_ready.parquet` file contains a time series dataset with energy-related feature columns, a `row_type` column for train/hold-out separation, and three target columns representing electricity prices at different grid nodes.  Prices in the holdout dataset are assumed to be 'forecasted' prices (in a real world operation these would be replaced with actual forecasted prices at these nodes).
 
 **Battery Specifications:**
 
