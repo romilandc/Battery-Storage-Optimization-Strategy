@@ -2,7 +2,7 @@
 
 **Objective:**
 
-Construct and backtest a simple operational strategy to maximize revenue from a hypothetical battery by buying and selling electricity during the hold-out period at the nodes aeci_lmp, mich_lmp, minn_lmp.
+Construct and backtest a simple operational trading strategy to maximize revenue from a hypothetical battery by buying and selling electricity during the hold-out period at the nodes aeci_lmp, mich_lmp, minn_lmp.
 
 **Dataset:**
 
