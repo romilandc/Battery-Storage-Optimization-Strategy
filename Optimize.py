@@ -11,6 +11,8 @@ fee = 1  # trade fees on both Buy and Sell trades in $/MWhr
 
 # Read the data
 df = pd.read_parquet('model_ready.parquet')
+df['Datetime'] = df.index
+df.reset_index(drop=True, inplace=True)
 
 # Split the data into train and hold_out segments
 train_data = df[df['row_type'] == 'train']
@@ -22,6 +24,8 @@ mich_lmp = hold_out["da_energy_michigan_hub_lmpexpost_ac"]
 minn_lmp = hold_out["da_energy_minn_hub_lmpexpost_ac"]
 
 price = [aeci_lmp, mich_lmp, minn_lmp]
+
+df_results = pd.DataFrame()
 
 def battery_model(mcp, mdp, e, fee):
 
@@ -99,7 +103,7 @@ def battery_model(mcp, mdp, e, fee):
     
     #Solve the model
     #enter path to the glpsol.exe to your glpk package
-    solverpath_exe='C://Users//...//Anaconda3//pkgs//glpk-5.0-h8ffe710_0//Library//bin//glpsol.exe'
+    solverpath_exe='C://Users//groutgauss//anaconda3//pkgs//glpk-5.0-h8ffe710_0//Library//bin//glpsol.exe'
     
     solver = pyo.SolverFactory('glpk', executable=solverpath_exe)
     results = solver.solve(model, tee=False)
@@ -133,8 +137,8 @@ def battery_model(mcp, mdp, e, fee):
         Minn_profit = [sell_by_node[2][i]*(price[2][i] - fee) - buy_by_node[2][i]*(price[2][i] + fee) for i in range(len(sell_by_node[2]))]
     
         #create df
-        df_results = pd.DataFrame({'Datetime': hold_out.index,
-                           'hour': [dt.hour for dt in hold_out.index],
+        df_results = pd.DataFrame({'Datetime': hold_out['Datetime'],
+                           'hour': [dt.hour for dt in hold_out['Datetime']],
                            'Charge State(KWh)': charge_hist,
                            'AECI Buys(KW)': buy_by_node[0],
                            'AECI Sells(KW)': sell_by_node[0],
@@ -151,7 +155,43 @@ def battery_model(mcp, mdp, e, fee):
     
         #Calculate cumulative profit
         df_results['Cumulative Profit'] = (df_results['AECI Profit']+df_results['Mich Profit'] + df_results['Minn Profit']).cumsum()
+        print(df_results['Cumulative Profit'].iloc[-1])
     
-    return(profit)
+    return(profit, df_results)
 
 battery_model(mcp,mdp,e,fee)
+
+
+# Plot the strategy and cumulative profit over time
+import matplotlib.pyplot as plt
+
+# Plotting
+fig, ax1 = plt.subplots(figsize=(12, 6))
+
+# Line plot for cumulative profit
+ax1.plot(df_results['Datetime'], df_results['Cumulative Profit'], label='Cumulative Profit')
+ax1.set_xlabel('Datetime')
+ax1.set_ylabel('Cumulative Profit ($)', color='k')
+ax1.tick_params(axis='y', labelcolor='k')
+
+# Twin the axes for buy/sell plots
+ax2 = ax1.twinx()
+
+# Line plots for buy/sell of each node
+ax2.plot(df_results['Datetime'], df_results['AECI Buys(KW)'], label='AECI Buys', color='g')
+ax2.plot(df_results['Datetime'], df_results['AECI Sells(KW)'], label='AECI Sells', color='r')
+ax2.plot(df_results['Datetime'], df_results['Mich Buys(KW)'], label='Mich Buys', color='c')
+ax2.plot(df_results['Datetime'], df_results['Mich Sells(KW)'], label='Mich Sells', color='m')
+ax2.plot(df_results['Datetime'], df_results['Minn Buys(KW)'], label='Minn Buys', color='y')
+ax2.plot(df_results['Datetime'], df_results['Minn Sells(KW)'], label='Minn Sells', color='k')
+ax2.set_ylabel('Buy/Sell (KW)', color='k')
+ax2.tick_params(axis='y', labelcolor='k')
+
+# Set labels and title
+plt.title('Battery Operations and Profit Over Time')
+lines1, labels1 = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
