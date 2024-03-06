@@ -22,3 +22,10 @@ The provided `model_ready.parquet` file contains a time series dataset with ener
 - Only one buy or sell order per grid node per time slice
 - Participation in any or all three grid nodes concurrently
 
+## How to use
+- download the model_ready.parquet and py scripts; save to local path
+- update path to local path where data is located
+- run script
+- observe results similar to (cumulative profit should be ~$10K)
+
+![Image1](https://github.com/romilan24/Multi-Battery-Storage-Optimization/blob/main/Buy_Sell_Cumulative_Profit.png)
