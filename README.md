@@ -1,6 +1,6 @@
 # Task Summary
 
-We're constructing a simple operational trading strategy to maximize revenue from a hypothetical battery by Buying and selling electricity during the hold-out period at the nodes aeci_lmp, mich_lmp, minn_lmp.
+We're constructing a simple operational trading strategy to maximize revenue from hypothetical battery by Buying and selling electricity during the hold-out period located at the nodes aeci_lmp, mich_lmp, minn_lmp.
 
 The provided `model_ready.parquet` file contains a time series dataset with energy-related feature columns, a `row_type` column for train/hold-out separation, and three target columns representing electricity prices at different grid nodes.  Prices in the holdout dataset are assumed to be 'forecasted' prices (in a real world operation these would be replaced with actual forecasted prices at these nodes).
 
